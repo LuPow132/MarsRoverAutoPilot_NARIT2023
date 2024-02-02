@@ -49,8 +49,8 @@ void loop() {
       data.rover_lat = gps.location.lat();
       data.rover_long = gps.location.lng();
       data.sat_used = gps.satellites.value();
+      myRadio.write(&data, sizeof(data)); 
     }
   }
-  myRadio.write(&data, sizeof(data)); 
-  delay(100);
+    
 }
