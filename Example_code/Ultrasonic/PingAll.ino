@@ -20,12 +20,15 @@ const int trigPin_ut_3 = 26;
 const int echoPin_ut_3 = 27;
 int distance_3;
 
+const int trigPin_ut_4 = 28;
+const int echoPin_ut_4 = 29;
+int distance_4;
+
 // defines variables
 long duration;
 int distance;
 
 int ping(int trigPin,int echoPin){
-  duration = 0;
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   // Sets the trigPin on HIGH state for 10 micro seconds
@@ -46,6 +49,8 @@ void pingAll(){
   delay(10);
   distance_3 = ping(trigPin_ut_3,echoPin_ut_3);
   delay(10);
+  distance_4 = ping(trigPin_ut_4,echoPin_ut_4);
+  delay(10);
 }
 
 void setup() {
@@ -57,6 +62,9 @@ void setup() {
 
   pinMode(trigPin_ut_3, OUTPUT); // Sets the trigPin as an Output
   pinMode(echoPin_ut_3, INPUT); // Sets the echoPin as an Input
+
+  pinMode(trigPin_ut_4, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin_ut_4, INPUT); // Sets the echoPin as an Input
 
   Serial.begin(9600); // Starts the serial communication
 }
@@ -70,7 +78,9 @@ void loop() {
 
   Serial.print("D3_");
   Serial.println(distance_3);
+
+  Serial.print("D4_");
+  Serial.println(distance_4);
   
   Serial.println("======================");
-  delay(100);
 }
