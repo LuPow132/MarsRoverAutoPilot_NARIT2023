@@ -14,6 +14,18 @@ const int trigPin_ut_4 = 28;
 const int echoPin_ut_4 = 29;
 int distance_4;
 
+const int trigPin_ut_5 = 30;
+const int echoPin_ut_5 = 31;
+int distance_5;
+
+const int trigPin_ut_6 = 32;
+const int echoPin_ut_6 = 33;
+int distance_6;
+
+const int trigPin_ut_7 = 34;
+const int echoPin_ut_7 = 35;
+int distance_7;
+
 long duration;
 int distance;
 int trig,echo;
@@ -40,6 +52,12 @@ void setup() {
   pinMode(trigPin_ut_3, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
   pinMode(echoPin_ut_4, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
   pinMode(trigPin_ut_4, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
+  pinMode(echoPin_ut_5, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
+  pinMode(trigPin_ut_5, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
+  pinMode(echoPin_ut_6, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
+  pinMode(trigPin_ut_6, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
+  pinMode(echoPin_ut_7, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
+  pinMode(trigPin_ut_7, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
 }
 
 void loop() {
@@ -49,6 +67,12 @@ void loop() {
   Serial.print(" | ");
   Serial.print(ping(trigPin_ut_3,echoPin_ut_3)); 
   Serial.print(" | ");
-  Serial.println(ping(trigPin_ut_4,echoPin_ut_4)); 
+  Serial.print(ping(trigPin_ut_4,echoPin_ut_4)); 
+  Serial.print(" | ");
+  Serial.print(ping(trigPin_ut_5,echoPin_ut_5)); 
+  Serial.print(" | ");
+  Serial.print(ping(trigPin_ut_6,echoPin_ut_6)); 
+  Serial.print(" | ");
+  Serial.println(ping(trigPin_ut_7,echoPin_ut_7)); 
   delay(100);
 }
