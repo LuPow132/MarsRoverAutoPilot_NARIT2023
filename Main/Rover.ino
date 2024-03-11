@@ -39,7 +39,10 @@ static const int RXPin = 11, TXPin = 10;
 static const uint32_t GPSBaud = 9600;
 
 unsigned long prevTimeSendData = millis();
-int intervalTimeSendData = 500;
+int intervalTimeSendData = 300;
+
+unsigned long prevTimePingAll = millis();
+int intervalTimePingAll = 1000;
 
 RF24 myRadio (7, 8);
 byte addresses[][6] = {"0"};
@@ -109,16 +112,11 @@ void loop() {
   unsigned long currentime = millis();
 
   gps.encode(ss.read());
-  if (gps.location.isUpdated()) {
-    data.rover_lat = gps.location.lat();
-    data.rover_long = gps.location.lng();
-    data.sat_used = gps.satellites.value();
-  }
+  data.rover_lat = gps.location.lat();
+  data.rover_long = gps.location.lng();
+  data.sat_used = gps.satellites.value();
 
-  //Send data every 300ms using threading
-  if(currentime - prevTimeSendData > intervalTimeSendData){
-    data.id = data.id + 1;
-
+  if(currentime - prevTimePingAll > intervalTimePingAll){
     data.distance_1 = ping(trigPin_ut_1,echoPin_ut_1);
     data.distance_2 = ping(trigPin_ut_2,echoPin_ut_2);
     data.distance_3 = ping(trigPin_ut_3,echoPin_ut_3);
@@ -126,6 +124,12 @@ void loop() {
     data.distance_5 = ping(trigPin_ut_5,echoPin_ut_5);
     data.distance_6 = ping(trigPin_ut_6,echoPin_ut_6);
     data.distance_7 = ping(trigPin_ut_7,echoPin_ut_7);
+
+    prevTimePingAll = currentime;
+  }
+  //Send data every 500ms using threading
+  if(currentime - prevTimeSendData > intervalTimeSendData){
+    data.id = data.id + 1;
     
     myRadio.write(&data, sizeof(data)); 
     Serial.print("Package/");
