@@ -46,9 +46,11 @@ void loop()  {
     Serial.print("Package/");
     Serial.println(data.id);
     Serial.print("lat/");
-    Serial.println(data.rover_lat);
+    Serial.println(data.rover_lat,6);
     Serial.print("long/");
-    Serial.println(data.rover_long);
+    Serial.println(data.rover_long,6);
+    Serial.print("Sat used/");
+    Serial.println(data.sat_used);
     Serial.println("Distance/");
     Serial.println(data.distance_1);
     Serial.println(data.distance_2);
