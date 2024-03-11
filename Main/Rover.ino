@@ -38,6 +38,9 @@ int trig,echo;
 static const int RXPin = 11, TXPin = 10;
 static const uint32_t GPSBaud = 9600;
 
+unsigned long prevTimeSendData = millis();
+int intervalTimeSendData = 500;
+
 RF24 myRadio (7, 8);
 byte addresses[][6] = {"0"};
 TinyGPSPlus gps;
@@ -103,18 +106,18 @@ void setup() {
 }
 
 void loop() {
-  while (ss.available() > 0) {
+  unsigned long currentime = millis();
+
+  gps.encode(ss.read());
+  if (gps.location.isUpdated()) {
+    data.rover_lat = gps.location.lat();
+    data.rover_long = gps.location.lng();
+    data.sat_used = gps.satellites.value();
+  }
+
+  //Send data every 300ms using threading
+  if(currentime - prevTimeSendData > intervalTimeSendData){
     data.id = data.id + 1;
-    gps.encode(ss.read());
-    if (gps.location.isUpdated()) {
-      data.rover_lat = gps.location.lat();
-      data.rover_long = gps.location.lng();
-      data.sat_used = gps.satellites.value();
-    }else{
-      data.rover_lat = 0.0;
-      data.rover_long = 0.0;
-      data.sat_used = 0;
-    }
 
     data.distance_1 = ping(trigPin_ut_1,echoPin_ut_1);
     data.distance_2 = ping(trigPin_ut_2,echoPin_ut_2);
@@ -140,6 +143,6 @@ void loop() {
     Serial.println(data.distance_6);
     Serial.println(data.distance_7);
 
-    delay(300);
+    prevTimeSendData = currentime;
   }
 }
