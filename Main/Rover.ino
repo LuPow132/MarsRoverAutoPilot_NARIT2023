@@ -2,6 +2,7 @@
 #include "RF24.h"
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
+#include <IBusBM.h>
 
 const int trigPin_ut_1 = 22;
 const int echoPin_ut_1 = 23;
@@ -48,6 +49,19 @@ RF24 myRadio (7, 8);
 byte addresses[][6] = {"0"};
 TinyGPSPlus gps;
 SoftwareSerial ss(RXPin, TXPin);
+IBusBM ibus;
+
+int compass_heading = 0;
+float distance_from_target = 0;
+int mode = 0; 
+int RX,RY;
+int compass_value;
+/*
+mode variable use number to represent mode that it currently are rightnow based on this
+
+0 = manual drive(flysky remote)
+1 = autopilot
+*/
 
 struct package {
   int id=1;
@@ -78,19 +92,36 @@ int ping(int trig,int echo){
   return distance;
 }
 
+// If the channel is off, return the default value
+int readChannel(byte channelInput, int minLimit, int maxLimit, int defaultValue) {
+  uint16_t ch = ibus.readChannel(channelInput);
+  if (ch < 100) return defaultValue;
+  return map(ch, 1000, 2000, minLimit, maxLimit);
+}
+
+// Read the channel and return a boolean value
+bool readSwitch(byte channelInput, bool defaultValue) {
+  int intDefaultValue = (defaultValue) ? 100 : 0;
+  int ch = readChannel(channelInput, 0, 100, intDefaultValue);
+  return (ch > 50);
+}
+
 void setup() {
   Serial.begin(115200);
-  Serial.println("booting UP");
-  delay(1000);
+  Serial.println("boot up");
+  delay(300);
   ss.begin(GPSBaud);
-  Serial.println("found GPS module..");
+  Serial.println("Connected to GPS");
   
   myRadio.begin();  
   myRadio.setChannel(115); 
   myRadio.setPALevel(RF24_PA_MAX);
   myRadio.setDataRate( RF24_250KBPS );
   myRadio.openWritingPipe(addresses[0]);
-  Serial.println("found NRF module..");
+  Serial.println("Connected to NRF");
+
+  ibus.begin(Serial1);
+  Serial.println("Connected to IBUS");
 
   pinMode(echoPin_ut_1, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
   pinMode(trigPin_ut_1, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
@@ -109,44 +140,68 @@ void setup() {
 }
 
 void loop() {
-  unsigned long currentime = millis();
+  //manual
+  while(mode == 0){
+    RX = readChannel(0, -100, 100, 0);
+    RY = readChannel(1, -100, 100, 0);
 
-  gps.encode(ss.read());
-  data.rover_lat = gps.location.lat();
-  data.rover_long = gps.location.lng();
-  data.sat_used = gps.satellites.value();
 
-  if(currentime - prevTimePingAll > intervalTimePingAll){
-    data.distance_1 = ping(trigPin_ut_1,echoPin_ut_1);
-    data.distance_2 = ping(trigPin_ut_2,echoPin_ut_2);
-    data.distance_3 = ping(trigPin_ut_3,echoPin_ut_3);
-    data.distance_4 = ping(trigPin_ut_4,echoPin_ut_4);
-    data.distance_5 = ping(trigPin_ut_5,echoPin_ut_5);
-    data.distance_6 = ping(trigPin_ut_6,echoPin_ut_6);
-    data.distance_7 = ping(trigPin_ut_7,echoPin_ut_7);
-
-    prevTimePingAll = currentime;
   }
-  //Send data every 500ms using threading
-  if(currentime - prevTimeSendData > intervalTimeSendData){
-    data.id = data.id + 1;
-    
-    myRadio.write(&data, sizeof(data)); 
-    Serial.print("Package/");
-    Serial.println(data.id);
-    Serial.print("lat/");
-    Serial.println(data.rover_lat);
-    Serial.print("long/");
-    Serial.println(data.rover_long);
-    Serial.println("Distance/");
-    Serial.println(data.distance_1);
-    Serial.println(data.distance_2);
-    Serial.println(data.distance_3);
-    Serial.println(data.distance_4);
-    Serial.println(data.distance_5);
-    Serial.println(data.distance_6);
-    Serial.println(data.distance_7);
+  //auto
+  while(mode == 1){
+    unsigned long currentime = millis();
 
-    prevTimeSendData = currentime;
+    gps.encode(ss.read());
+    data.rover_lat = gps.location.lat();
+    data.rover_long = gps.location.lng();
+    data.sat_used = gps.satellites.value();
+
+    if(currentime - prevTimePingAll > intervalTimePingAll){
+      data.distance_1 = ping(trigPin_ut_1,echoPin_ut_1);
+      data.distance_2 = ping(trigPin_ut_2,echoPin_ut_2);
+      data.distance_3 = ping(trigPin_ut_3,echoPin_ut_3);
+      data.distance_4 = ping(trigPin_ut_4,echoPin_ut_4);
+      data.distance_5 = ping(trigPin_ut_5,echoPin_ut_5);
+      data.distance_6 = ping(trigPin_ut_6,echoPin_ut_6);
+      data.distance_7 = ping(trigPin_ut_7,echoPin_ut_7);
+
+      prevTimePingAll = currentime;
+    }
+
+    //Send data every 500ms using threading
+    if(currentime - prevTimeSendData > intervalTimeSendData){
+      data.id = data.id + 1;
+      
+      myRadio.write(&data, sizeof(data)); 
+      Serial.print("Package/");
+      Serial.println(data.id);
+      Serial.print("lat/");
+      Serial.println(data.rover_lat);
+      Serial.print("long/");
+      Serial.println(data.rover_long);
+      Serial.println("Distance/");
+      Serial.println(data.distance_1);
+      Serial.println(data.distance_2);
+      Serial.println(data.distance_3);
+      Serial.println(data.distance_4);
+      Serial.println(data.distance_5);
+      Serial.println(data.distance_6);
+      Serial.println(data.distance_7);
+
+      prevTimeSendData = currentime;
+    }
+    
+    //check the distance, if it reach the target yet?
+    if(distance_from_target > 1){
+      if(distance_1 > 15){
+        if(abs(compass_value) <= 5){
+          //walk forward
+        }else{
+          //rotate to heading
+        }
+      }else{
+        //find the other way bro
+      }
+    }
   }
 }
