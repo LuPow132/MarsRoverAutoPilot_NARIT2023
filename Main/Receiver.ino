@@ -42,23 +42,23 @@ void loop()  {
     while (myRadio.available()){
       myRadio.read( &data, sizeof(data) );
     }
-    Serial.print("\nPackage:");
-    Serial.print("Package/");
-    Serial.println(data.id);
-    Serial.print("lat/");
-    Serial.println(data.rover_lat,6);
-    Serial.print("long/");
+    Serial.print(data.distance_1);
+    Serial.print("|");
+    Serial.print(data.distance_2);
+    Serial.print("|");
+    Serial.print(data.distance_3);
+    Serial.print("|");
+    Serial.print(data.distance_4);
+    Serial.print("|");
+    Serial.print(data.distance_5);
+    Serial.print("|");
+    Serial.print(data.distance_6);
+    Serial.print("|");
+    Serial.print(data.distance_7);
+    Serial.print("|");
+    Serial.print(data.rover_lat,6);
+    Serial.print(",");
     Serial.println(data.rover_long,6);
-    Serial.print("Sat used/");
-    Serial.println(data.sat_used);
-    Serial.println("Distance/");
-    Serial.println(data.distance_1);
-    Serial.println(data.distance_2);
-    Serial.println(data.distance_3);
-    Serial.println(data.distance_4);
-    Serial.println(data.distance_5);
-    Serial.println(data.distance_6);
-    Serial.println(data.distance_7);
 
   }
 }
