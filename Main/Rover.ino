@@ -53,9 +53,12 @@ IBusBM ibus;
 
 int compass_heading = 0;
 float distance_from_target = 0;
+int direction_to_target = 0;
 int mode = 0; 
 int RX,RY;
 int compass_value;
+bool reach_destination = false;
+bool gps_value_reach = false;
 /*
 mode variable use number to represent mode that it currently are rightnow based on this
 
@@ -106,6 +109,56 @@ bool readSwitch(byte channelInput, bool defaultValue) {
   return (ch > 50);
 }
 
+void autopilot(double destination_lat,double destination_long){
+  reach_destination = false;
+  gps_value_reach = false;
+  while(!reach_destination){
+    while (ss.available() > 0){
+      if (gps.encode(ss.read())){
+        if(gps_value_reach){
+          if (gps.location.isUpdated()) {
+            distance_from_target = TinyGPSPlus::distanceBetween(gps.location.lat(), gps.location.lng(), destination_lat, destination_long);
+            direction_to_target = TinyGPSPlus::courseTo(gps.location.lat(), gps.location.lng(), destination_lat, destination_long);
+            Serial.print("Distance from destination is: ");
+            Serial.println(distance_from_target);
+
+            Serial.print("Direction to destination is: ");
+            Serial.println(direction_to_target);
+
+            reach_destination = true;
+          }
+        }else{
+          if (gps.satellites.value() < 6){
+            Serial.println(gps.satellites.value());
+          }else{
+            gps_value_reach = true;
+          }
+        }
+      }
+    }
+  }
+}
+
+void send_data(){
+  data.id = data.id + 1;
+      
+  myRadio.write(&data, sizeof(data)); 
+  Serial.print("Package/");
+  Serial.println(data.id);
+  Serial.print("lat/");
+  Serial.println(data.rover_lat);
+  Serial.print("long/");
+  Serial.println(data.rover_long);
+  Serial.println("Distance/");
+  Serial.println(data.distance_1);
+  Serial.println(data.distance_2);
+  Serial.println(data.distance_3);
+  Serial.println(data.distance_4);
+  Serial.println(data.distance_5);
+  Serial.println(data.distance_6);
+  Serial.println(data.distance_7);
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.println("boot up");
@@ -137,6 +190,9 @@ void setup() {
   pinMode(trigPin_ut_6, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
   pinMode(echoPin_ut_7, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
   pinMode(trigPin_ut_7, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
+
+  
+  autopilot(13.27650714774289, 100.92202871413004);
 }
 
 void loop() {
@@ -170,24 +226,7 @@ void loop() {
 
     //Send data every 500ms using threading
     if(currentime - prevTimeSendData > intervalTimeSendData){
-      data.id = data.id + 1;
-      
-      myRadio.write(&data, sizeof(data)); 
-      Serial.print("Package/");
-      Serial.println(data.id);
-      Serial.print("lat/");
-      Serial.println(data.rover_lat);
-      Serial.print("long/");
-      Serial.println(data.rover_long);
-      Serial.println("Distance/");
-      Serial.println(data.distance_1);
-      Serial.println(data.distance_2);
-      Serial.println(data.distance_3);
-      Serial.println(data.distance_4);
-      Serial.println(data.distance_5);
-      Serial.println(data.distance_6);
-      Serial.println(data.distance_7);
-
+      send_data();
       prevTimeSendData = currentime;
     }
     
