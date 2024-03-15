@@ -150,10 +150,10 @@ void autopilot(double destination_lat,double destination_long){
               Serial.println("Walk forward");
             }else if(compass_value < 0){
               Serial.print("Rotate error cw: ");
-              Serial.println(compass_value + direction_to_target);
+              Serial.println(abs(compass_value - direction_to_target));
             }else{
               Serial.print("Rotate error ccw: ");
-              Serial.println(compass_value - direction_to_target);
+              Serial.println(abs(compass_value - direction_to_target));
             }
 
             //loop exit when reach destination
@@ -231,7 +231,7 @@ void setup() {
   pinMode(trigPin_ut_7, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
 
   
-  autopilot(13.275976008768936, 100.92085546523285);
+  autopilot(13.276377994281711, 100.92174238087858);
 }
 
 void loop() {
