@@ -3,6 +3,7 @@
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
 #include <IBusBM.h>
+#include <QMC5883LCompass.h>
 
 const int trigPin_ut_1 = 22;
 const int echoPin_ut_1 = 23;
@@ -50,6 +51,7 @@ byte addresses[][6] = {"0"};
 TinyGPSPlus gps;
 SoftwareSerial ss(RXPin, TXPin);
 IBusBM ibus;
+QMC5883LCompass compass;
 
 int compass_heading = 0;
 float distance_from_target = 0;
@@ -59,6 +61,7 @@ int RX,RY;
 int compass_value;
 bool reach_destination = false;
 bool gps_value_reach = false;
+int heading_threshold = 8;
 /*
 mode variable use number to represent mode that it currently are rightnow based on this
 
@@ -116,16 +119,47 @@ void autopilot(double destination_lat,double destination_long){
     while (ss.available() > 0){
       if (gps.encode(ss.read())){
         if(gps_value_reach){
-          if (gps.location.isUpdated()) {
+          if (gps.location.isUpdated()){
             distance_from_target = TinyGPSPlus::distanceBetween(gps.location.lat(), gps.location.lng(), destination_lat, destination_long);
             direction_to_target = TinyGPSPlus::courseTo(gps.location.lat(), gps.location.lng(), destination_lat, destination_long);
+            direction_to_target = map(direction_to_target,0,360,-180,180);
+
+            //Destination Location
+            Serial.print(destination_lat,6);
+            Serial.print(",");
+            Serial.println(destination_long,6);
+
+            //Current Location
+            Serial.print(gps.location.lat(),6);
+            Serial.print(",");
+            Serial.println(gps.location.lng(),6);
+
             Serial.print("Distance from destination is: ");
             Serial.println(distance_from_target);
 
             Serial.print("Direction to destination is: ");
             Serial.println(direction_to_target);
 
-            reach_destination = true;
+            compass.read();
+            compass_value = compass.getAzimuth();
+
+            Serial.print("Compass value : ");
+            Serial.println(compass_value);
+
+            if(abs(compass_value - direction_to_target) < heading_threshold){
+              Serial.println("Walk forward");
+            }else if(compass_value < 0){
+              Serial.print("Rotate error cw: ");
+              Serial.println(compass_value + direction_to_target);
+            }else{
+              Serial.print("Rotate error ccw: ");
+              Serial.println(compass_value - direction_to_target);
+            }
+
+            //loop exit when reach destination
+            if(distance_from_target <= 1){
+              reach_destination = true;
+            }
           }
         }else{
           if (gps.satellites.value() < 6){
@@ -176,6 +210,11 @@ void setup() {
   ibus.begin(Serial1);
   Serial.println("Connected to IBUS");
 
+  compass.init();
+  Serial.println("Connected to compass");
+  compass.setCalibrationOffsets(587.00, -530.00, 99.00);
+  compass.setCalibrationScales(0.81, 1.13, 1.13);
+
   pinMode(echoPin_ut_1, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
   pinMode(trigPin_ut_1, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
   pinMode(echoPin_ut_2, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
@@ -192,7 +231,7 @@ void setup() {
   pinMode(trigPin_ut_7, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
 
   
-  autopilot(13.27650714774289, 100.92202871413004);
+  autopilot(13.275976008768936, 100.92085546523285);
 }
 
 void loop() {
@@ -228,19 +267,6 @@ void loop() {
     if(currentime - prevTimeSendData > intervalTimeSendData){
       send_data();
       prevTimeSendData = currentime;
-    }
-    
-    //check the distance, if it reach the target yet?
-    if(distance_from_target > 1){
-      if(distance_1 > 15){
-        if(abs(compass_value) <= 5){
-          //walk forward
-        }else{
-          //rotate to heading
-        }
-      }else{
-        //find the other way bro
-      }
     }
   }
 }
