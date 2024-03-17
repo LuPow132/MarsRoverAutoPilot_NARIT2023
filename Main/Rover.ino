@@ -122,7 +122,6 @@ void autopilot(double destination_lat,double destination_long){
           if (gps.location.isUpdated()){
             distance_from_target = TinyGPSPlus::distanceBetween(gps.location.lat(), gps.location.lng(), destination_lat, destination_long);
             direction_to_target = TinyGPSPlus::courseTo(gps.location.lat(), gps.location.lng(), destination_lat, destination_long);
-            direction_to_target = map(direction_to_target,0,360,-180,180);
 
             //Destination Location
             Serial.print(destination_lat,6);
@@ -142,18 +141,18 @@ void autopilot(double destination_lat,double destination_long){
 
             compass.read();
             compass_value = compass.getAzimuth();
+            if(compass_value < 0){
+              compass_value = 360 + compass_value;
+            }
 
             Serial.print("Compass value : ");
             Serial.println(compass_value);
 
             if(abs(compass_value - direction_to_target) < heading_threshold){
               Serial.println("Walk forward");
-            }else if(compass_value < 0){
-              Serial.print("Rotate error cw: ");
-              Serial.println(abs(compass_value - direction_to_target));
             }else{
-              Serial.print("Rotate error ccw: ");
-              Serial.println(abs(compass_value - direction_to_target));
+              Serial.print("Rotate error: ");
+              Serial.println(direction_to_target - compass_value);
             }
 
             //loop exit when reach destination
@@ -231,7 +230,7 @@ void setup() {
   pinMode(trigPin_ut_7, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
 
   
-  autopilot(13.276377994281711, 100.92174238087858);
+  autopilot(13.276325549975764, 100.92175298866883);
 }
 
 void loop() {
