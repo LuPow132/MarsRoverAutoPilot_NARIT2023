@@ -62,6 +62,7 @@ int compass_value;
 bool reach_destination = false;
 bool gps_value_reach = false;
 int heading_threshold = 8;
+int satellites_amount_to_start = 6;
 /*
 mode variable use number to represent mode that it currently are rightnow based on this
 
@@ -157,11 +158,12 @@ void autopilot(double destination_lat,double destination_long){
 
             //loop exit when reach destination
             if(distance_from_target <= 1){
+              Serial.println("You reach destination...");
               reach_destination = true;
             }
           }
         }else{
-          if (gps.satellites.value() < 6){
+          if (gps.satellites.value() < satellites_amount_to_start){
             Serial.println(gps.satellites.value());
           }else{
             gps_value_reach = true;
@@ -214,32 +216,45 @@ void setup() {
   compass.setCalibrationOffsets(587.00, -530.00, 99.00);
   compass.setCalibrationScales(0.81, 1.13, 1.13);
 
-  pinMode(echoPin_ut_1, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
-  pinMode(trigPin_ut_1, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
-  pinMode(echoPin_ut_2, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
-  pinMode(trigPin_ut_2, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
-  pinMode(echoPin_ut_3, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
-  pinMode(trigPin_ut_3, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
-  pinMode(echoPin_ut_4, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
-  pinMode(trigPin_ut_4, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
-  pinMode(echoPin_ut_5, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
-  pinMode(trigPin_ut_5, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
-  pinMode(echoPin_ut_6, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
-  pinMode(trigPin_ut_6, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
-  pinMode(echoPin_ut_7, INPUT); //สั่งให้ขา echo ใช้งานเป็น input
-  pinMode(trigPin_ut_7, OUTPUT); //สั่งให้ขา trig ใช้งานเป็น output
+  pinMode(echoPin_ut_1, INPUT); 
+  pinMode(trigPin_ut_1, OUTPUT); 
+  pinMode(echoPin_ut_2, INPUT); 
+  pinMode(trigPin_ut_2, OUTPUT);
+  pinMode(echoPin_ut_3, INPUT); 
+  pinMode(trigPin_ut_3, OUTPUT); 
+  pinMode(echoPin_ut_4, INPUT); 
+  pinMode(trigPin_ut_4, OUTPUT); 
+  pinMode(echoPin_ut_5, INPUT); 
+  pinMode(trigPin_ut_5, OUTPUT); 
+  pinMode(echoPin_ut_6, INPUT); 
+  pinMode(trigPin_ut_6, OUTPUT); 
+  pinMode(echoPin_ut_7, INPUT); 
+  pinMode(trigPin_ut_7, OUTPUT); 
 
   
-  autopilot(13.276325549975764, 100.92175298866883);
+  autopilot(13.276405768032669, 100.92171475261347);
 }
 
 void loop() {
   //manual
   while(mode == 0){
+    unsigned long currentime = millis();
+
     RX = readChannel(0, -100, 100, 0);
     RY = readChannel(1, -100, 100, 0);
+    Serial.print(RX);
+    Serial.print("|");
+    Serial.println(RY);
 
+    gps.encode(ss.read());
+    data.rover_lat = gps.location.lat();
+    data.rover_long = gps.location.lng();
+    data.sat_used = gps.satellites.value();
 
+    if(currentime - prevTimeSendData > intervalTimeSendData){
+      send_data();
+      prevTimeSendData = currentime;
+    }
   }
   //auto
   while(mode == 1){
