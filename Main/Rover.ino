@@ -5,6 +5,22 @@
 #include <IBusBM.h>
 #include <QMC5883LCompass.h>
 
+//Left side Motor
+int dir1PinL = 5;
+
+int dir2PinL = 6;
+
+int speedPinL = 7;
+
+
+//Right side Motor
+
+int dir1PinR = 3;
+
+int dir2PinR = 4;
+
+int speedPinR = 2;
+
 const int trigPin_ut_1 = 22;
 const int echoPin_ut_1 = 23;
 int distance_1;
@@ -46,7 +62,7 @@ int intervalTimeSendData = 300;
 unsigned long prevTimePingAll = millis();
 int intervalTimePingAll = 1000;
 
-RF24 myRadio (7, 8);
+RF24 myRadio (8, 9);
 byte addresses[][6] = {"0"};
 TinyGPSPlus gps;
 SoftwareSerial ss(RXPin, TXPin);
@@ -194,6 +210,53 @@ void send_data(){
   Serial.println(data.distance_7);
 }
 
+void motor_drive(int motor_left_speed,int motor_right_speed){
+
+  int mapped_speed_L = map(abs(motor_left_speed),0,100,0,255);
+  if(motor_left_speed > 0){
+    analogWrite(speedPinL, mapped_speed_L);
+
+    digitalWrite(dir1PinL, LOW);
+
+    digitalWrite(dir2PinL, HIGH);
+
+  }else if(motor_left_speed < 0){
+    analogWrite(speedPinL, mapped_speed_L);
+
+    digitalWrite(dir1PinL, HIGH);
+
+    digitalWrite(dir2PinL, LOW);
+  }else if(motor_left_speed = 0){
+    analogWrite(speedPinL, mapped_speed_L);
+
+    digitalWrite(dir1PinL, LOW);
+
+    digitalWrite(dir2PinL, LOW);
+  }
+
+  int mapped_speed_R = map(abs(motor_right_speed),0,100,0,255);
+  if(motor_right_speed > 0){
+    analogWrite(speedPinR, mapped_speed_R);
+
+    digitalWrite(dir1PinR, LOW);
+
+    digitalWrite(dir2PinR, HIGH);
+
+  }else if(motor_right_speed < 0){
+    analogWrite(speedPinR, mapped_speed_R);
+
+    digitalWrite(dir1PinR, HIGH);
+
+    digitalWrite(dir2PinR, LOW);
+  }else if(motor_right_speed = 0){
+    analogWrite(speedPinR, mapped_speed_R);
+
+    digitalWrite(dir1PinR, LOW);
+
+    digitalWrite(dir2PinL, LOW);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.println("boot up");
@@ -216,6 +279,13 @@ void setup() {
   compass.setCalibrationOffsets(587.00, -530.00, 99.00);
   compass.setCalibrationScales(0.81, 1.13, 1.13);
 
+  pinMode(dir1PinL,OUTPUT);
+  pinMode(dir2PinL,OUTPUT);
+  pinMode(speedPinL,OUTPUT);
+  pinMode(dir1PinR,OUTPUT);
+  pinMode(dir2PinR,OUTPUT);
+  pinMode(speedPinR,OUTPUT);
+
   pinMode(echoPin_ut_1, INPUT); 
   pinMode(trigPin_ut_1, OUTPUT); 
   pinMode(echoPin_ut_2, INPUT); 
@@ -232,7 +302,7 @@ void setup() {
   pinMode(trigPin_ut_7, OUTPUT); 
 
   
-  autopilot(13.276405768032669, 100.92171475261347);
+  //autopilot(13.276405768032669, 100.92171475261347);
 }
 
 void loop() {
@@ -255,6 +325,8 @@ void loop() {
       send_data();
       prevTimeSendData = currentime;
     }
+
+    motor_drive(50,-50);
   }
   //auto
   while(mode == 1){
