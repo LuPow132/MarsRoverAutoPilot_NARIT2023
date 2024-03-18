@@ -78,7 +78,7 @@ int compass_value;
 bool reach_destination = false;
 bool gps_value_reach = false;
 int heading_threshold = 8;
-int satellites_amount_to_start = 6;
+int satellites_amount_to_start = 4;
 /*
 mode variable use number to represent mode that it currently are rightnow based on this
 
@@ -173,10 +173,10 @@ void autopilot(double destination_lat,double destination_long){
             }
 
             //loop exit when reach destination
-            if(distance_from_target <= 1){
-              Serial.println("You reach destination...");
-              reach_destination = true;
-            }
+            // if(distance_from_target <= 1){
+            //   Serial.println("You reach destination...");
+            //   reach_destination = true;
+            // }
           }
         }else{
           if (gps.satellites.value() < satellites_amount_to_start){
@@ -302,7 +302,7 @@ void setup() {
   pinMode(trigPin_ut_7, OUTPUT); 
 
   
-  //autopilot(13.276405768032669, 100.92171475261347);
+  autopilot(13.27670501966051, 100.92203745504919);
 }
 
 void loop() {
@@ -326,7 +326,7 @@ void loop() {
       prevTimeSendData = currentime;
     }
 
-    motor_drive(50,-50);
+    motor_drive(RX,RY);
   }
   //auto
   while(mode == 1){
