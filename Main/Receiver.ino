@@ -16,6 +16,7 @@ struct package {
   int distance_5 = 0;
   int distance_6 = 0;
   int distance_7 = 0;
+  char message = "";
 };
 
 typedef struct package Package;
