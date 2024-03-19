@@ -165,12 +165,15 @@ void autopilot(double destination_lat,double destination_long){
             Serial.print("Compass value : ");
             Serial.println(compass_value);
 
-            if(abs(compass_value - direction_to_target) < heading_threshold){
-              Serial.println("Walk forward");
-            }else{
-              Serial.print("Rotate error: ");
-              Serial.println(direction_to_target - compass_value);
-            }
+            int rot_error = findRotError(compass_value,direction_to_target);
+            Serial.print("Rotate error: ");
+            Serial.println(rot_error);
+            // if(abs(compass_value - direction_to_target) < heading_threshold){
+            //   Serial.println("Walk forward");
+            // }else if(compass_value > direction_to_target){
+            //   Serial.print("Rotate error: ");
+            //   Serial.println(direction_to_target - compass_value);
+            // }
 
             //loop exit when reach destination
             // if(distance_from_target <= 1){
@@ -257,6 +260,23 @@ void motor_drive(int motor_left_speed,int motor_right_speed){
   }
 }
 
+int findRotError(int compass_value, int direction_need_to_head_value) {
+    // Calculate the absolute clockwise and counterclockwise differences
+    int clockwise_diff = (direction_need_to_head_value - compass_value + 360) % 360;
+    int counterclockwise_diff = (compass_value - direction_need_to_head_value + 360) % 360;
+
+    // Determine the minimum difference and direction
+    int rotation = (clockwise_diff <= counterclockwise_diff) ? clockwise_diff : -counterclockwise_diff;
+
+    // Ensure the rotation is within the range of -180 to 180
+    if (rotation > 180)
+        rotation -= 360;
+    else if (rotation <= -180)
+        rotation += 360;
+
+    return rotation;
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.println("boot up");
@@ -302,7 +322,7 @@ void setup() {
   pinMode(trigPin_ut_7, OUTPUT); 
 
   
-  autopilot(13.27670501966051, 100.92203745504919);
+  autopilot(13.276906029602102, 100.92121938129964);
 }
 
 void loop() {
