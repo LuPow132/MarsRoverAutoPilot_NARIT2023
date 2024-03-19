@@ -100,7 +100,7 @@ struct package {
   int distance_7 = 0;
   char message = "";
   int mode = 0;
-  int UDP/TCP = 0;
+  int UDP_TCP = 0;
 };
 
 typedef struct package Package;
@@ -196,9 +196,9 @@ void autopilot(double destination_lat,double destination_long){
   }
 }
 
-void send_data(){
+void send_data(int UDP_TCP){
   data.id = data.id + 1;
-      
+  data.UDP_TCP = UDP_TCP;
   myRadio.write(&data, sizeof(data)); 
   Serial.print("Package/");
   Serial.println(data.id);
