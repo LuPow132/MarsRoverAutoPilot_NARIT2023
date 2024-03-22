@@ -99,8 +99,6 @@ struct package {
   int distance_6 = 0;
   int distance_7 = 0;
   char message = "";
-  int mode = 0;
-  int UDP_TCP = 0;
 };
 
 typedef struct package Package;
@@ -169,20 +167,13 @@ void autopilot(double destination_lat,double destination_long){
             Serial.println(compass_value);
 
             int rot_error = findRotError(compass_value,direction_to_target);
-            Serial.print("Rotate error: ");
-            Serial.println(rot_error);
-            // if(abs(compass_value - direction_to_target) < heading_threshold){
-            //   Serial.println("Walk forward");
-            // }else if(compass_value > direction_to_target){
-            //   Serial.print("Rotate error: ");
-            //   Serial.println(direction_to_target - compass_value);
-            // }
 
-            //loop exit when reach destination
-            // if(distance_from_target <= 1){
-            //   Serial.println("You reach destination...");
-            //   reach_destination = true;
-            // }
+            if(abs(rot_error) < heading_threshold){
+              Serial.println("Heading Forward");
+            }else{
+              Serial.print("Rotate error: ");
+              Serial.println(rot_error);
+            }
           }
         }else{
           if (gps.satellites.value() < satellites_amount_to_start){
@@ -196,9 +187,8 @@ void autopilot(double destination_lat,double destination_long){
   }
 }
 
-void send_data(int UDP_TCP){
+void send_data(){
   data.id = data.id + 1;
-  data.UDP_TCP = UDP_TCP;
   myRadio.write(&data, sizeof(data)); 
   Serial.print("Package/");
   Serial.println(data.id);
@@ -232,8 +222,7 @@ void motor_drive(int motor_left_speed,int motor_right_speed){
     digitalWrite(dir1PinL, HIGH);
 
     digitalWrite(dir2PinL, LOW);
-  }else if(motor_left_speed = 0){
-    analogWrite(speedPinL, mapped_speed_L);
+  }else if(motor_left_speed == 0){
 
     digitalWrite(dir1PinL, LOW);
 
@@ -254,9 +243,7 @@ void motor_drive(int motor_left_speed,int motor_right_speed){
     digitalWrite(dir1PinR, HIGH);
 
     digitalWrite(dir2PinR, LOW);
-  }else if(motor_right_speed = 0){
-    analogWrite(speedPinR, mapped_speed_R);
-
+  }else if(motor_right_speed == 0){
     digitalWrite(dir1PinR, LOW);
 
     digitalWrite(dir2PinL, LOW);
@@ -293,6 +280,10 @@ void setup() {
   myRadio.setDataRate( RF24_250KBPS );
   myRadio.openWritingPipe(addresses[0]);
   Serial.println("Connected to NRF");
+
+  data.id = data.id + 1;
+  data.message = "Radio Connected!";
+  myRadio.write(&data, sizeof(data)); 
 
   ibus.begin(Serial1);
   Serial.println("Connected to IBUS");
@@ -344,12 +335,13 @@ void loop() {
     data.rover_long = gps.location.lng();
     data.sat_used = gps.satellites.value();
 
+    motor_drive(RX,RY);
+
     if(currentime - prevTimeSendData > intervalTimeSendData){
       send_data();
       prevTimeSendData = currentime;
     }
 
-    motor_drive(RX,RY);
   }
   //auto
   while(mode == 1){
