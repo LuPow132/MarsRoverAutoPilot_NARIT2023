@@ -1,9 +1,138 @@
-<mxfile host="app.diagrams.net" modified="2024-03-29T10:28:28.925Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" version="24.2.1" etag="RzH-PqR3Akxq2nWxPfeT" type="github">
+<mxfile host="app.diagrams.net" modified="2024-03-29T16:58:29.553Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" etag="CIN8KYIEHZESXmSdHyLH" version="24.2.1" type="github">
   <diagram name="Page-1" id="lfnmauDNHLW8lesdNMmO">
-    <mxGraphModel>
+    <mxGraphModel dx="1105" dy="594" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-1" target="Zg9ToYOvSzNhh1o7uwym-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-1" value="Start" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="10" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-3" target="Zg9ToYOvSzNhh1o7uwym-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-3" value="Start&amp;nbsp;initialize&lt;div&gt;Magnetic compass,&lt;/div&gt;&lt;div&gt;GPS,&lt;/div&gt;&lt;div&gt;NRF24l01&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="335" y="130" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-7" target="Zg9ToYOvSzNhh1o7uwym-7">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="270" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="561" y="380" />
+              <mxPoint x="561" y="270" />
+              <mxPoint x="420" y="270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-10" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Zg9ToYOvSzNhh1o7uwym-9">
+          <mxGeometry x="-0.7856" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-7" target="Zg9ToYOvSzNhh1o7uwym-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-15" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Zg9ToYOvSzNhh1o7uwym-14">
+          <mxGeometry x="-0.28" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-7" value="Does GPS connect to satellite &amp;gt;8 yet?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="310" width="140" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-13" target="Zg9ToYOvSzNhh1o7uwym-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-13" value="Getting Destination Latitude Longtitude" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="500" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-18" target="Zg9ToYOvSzNhh1o7uwym-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-18" value="Calculate Distance between current Location and Destination Location&lt;div&gt;and store those into variable&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="335" y="640" width="170" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-20" target="Zg9ToYOvSzNhh1o7uwym-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-39" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Zg9ToYOvSzNhh1o7uwym-36">
+          <mxGeometry x="-0.1795" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-20" target="Zg9ToYOvSzNhh1o7uwym-42">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-44" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Zg9ToYOvSzNhh1o7uwym-41">
+          <mxGeometry x="-0.532" y="-4" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-20" value="Distance to target &amp;lt;= 1?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="347.5" y="810" width="145" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-24" target="Zg9ToYOvSzNhh1o7uwym-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-33" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Zg9ToYOvSzNhh1o7uwym-31">
+          <mxGeometry x="-0.6057" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-24" target="Zg9ToYOvSzNhh1o7uwym-34">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-38" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Zg9ToYOvSzNhh1o7uwym-35">
+          <mxGeometry x="-0.1603" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-24" value="Rotate_error &amp;lt;= ErrorGapThreshold" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="355" y="1130" width="130" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-25" target="Zg9ToYOvSzNhh1o7uwym-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-25" value="Calculate error between magnetic compass and direction need to heading and store it as variable" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="355" y="1010" width="130" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-30" target="Zg9ToYOvSzNhh1o7uwym-24">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="310" y="1320" />
+              <mxPoint x="310" y="1195" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-30" value="Rotate to error Direction" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="1290" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-34" target="Zg9ToYOvSzNhh1o7uwym-18">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="1195" />
+              <mxPoint x="670" y="620" />
+              <mxPoint x="420" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-34" value="Walk Forward" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="530" y="1165" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zg9ToYOvSzNhh1o7uwym-42" target="Zg9ToYOvSzNhh1o7uwym-13">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Zg9ToYOvSzNhh1o7uwym-42" value="Wait for New destination Lattidue Longtitude information" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="610" width="120" height="60" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
