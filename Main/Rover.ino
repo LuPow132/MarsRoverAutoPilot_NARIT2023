@@ -267,6 +267,24 @@ int findRotError(int compass_value, int direction_need_to_head_value) {
     return rotation;
 }
 
+void waypoint_execute(double Latitude_array[],double Longtitude_array[]){
+  //get amount of each array
+  int Lat_num_Elements = sizeof(Latitude_array) / sizeof(Latitude_array[0]);
+  int Long_num_Elements = sizeof(Longtitude_array) / sizeof(Longtitude_array[0]);
+
+  //Check if 2 array has the same amount of element
+  if(Lat_num_Elements != Long_num_Elements){
+    Serial.println("array amount not matching!");
+    return false;
+  }
+
+  for(int i = 0; i < Lat_num_Elements; i++){
+    autopilot(Latitude_array[i],Longtitude_array[i]);
+  }
+  Serial.println("Successfuly execute autopilot for all waypoint!");
+  return true;
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.println("boot up");
