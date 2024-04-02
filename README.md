@@ -10,7 +10,7 @@ This is the list for all board and modules use to make this project happend
 - NEF24L01 module
 - Mag sensor
 - Ultrasonic
-- JGA motor(300RPM 12V)
+- JGA motor(300RPM 12V) ((might change to brushless motor later if I want to racing withit for fun))
 - L298N motor driver
 
 # The goal we need to do
