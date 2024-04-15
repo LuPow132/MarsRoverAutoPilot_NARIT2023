@@ -223,6 +223,7 @@ void motor_drive(int motor_left_speed,int motor_right_speed){
 
     digitalWrite(dir2PinL, LOW);
   }else if(motor_left_speed == 0){
+    analogWrite(speedPinL, 0);
 
     digitalWrite(dir1PinL, LOW);
 
@@ -244,6 +245,8 @@ void motor_drive(int motor_left_speed,int motor_right_speed){
 
     digitalWrite(dir2PinR, LOW);
   }else if(motor_right_speed == 0){
+    analogWrite(speedPinR, 0);
+
     digitalWrite(dir1PinR, LOW);
 
     digitalWrite(dir2PinL, LOW);
@@ -334,7 +337,7 @@ void setup() {
   pinMode(trigPin_ut_7, OUTPUT); 
 
   
-  autopilot(13.276906029602102, 100.92121938129964);
+  // autopilot(13.276906029602102, 100.92121938129964);
 }
 
 void loop() {
@@ -343,17 +346,18 @@ void loop() {
     unsigned long currentime = millis();
 
     RX = readChannel(0, -100, 100, 0);
-    RY = readChannel(1, -100, 100, 0);
-    Serial.print(RX);
-    Serial.print("|");
-    Serial.println(RY);
+    RY = -1 * readChannel(1, -100, 100, 0);
 
     gps.encode(ss.read());
     data.rover_lat = gps.location.lat();
     data.rover_long = gps.location.lng();
     data.sat_used = gps.satellites.value();
-
-    motor_drive(RX,RY);
+    int R = RX + RY;
+    int L = RX - RY;
+    Serial.print(L);
+    Serial.print("|");
+    Serial.println(R);
+    motor_drive(L,R);
 
     if(currentime - prevTimeSendData > intervalTimeSendData){
       send_data();
