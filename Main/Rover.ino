@@ -72,7 +72,7 @@ QMC5883LCompass compass;
 int compass_heading = 0;
 float distance_from_target = 0;
 int direction_to_target = 0;
-int mode = 0; 
+int mode = 1; 
 int RX,RY;
 int compass_value;
 bool reach_destination = false;
@@ -208,7 +208,7 @@ void send_data(){
 
 void motor_drive(int motor_left_speed,int motor_right_speed){
 
-  int mapped_speed_L = map(abs(motor_left_speed),0,100,0,255);
+  int mapped_speed_L = map(constrain(abs(motor_left_speed), 30, 100),0,100,0,255);
   if(motor_left_speed > 0){
     analogWrite(speedPinL, mapped_speed_L);
 
@@ -222,7 +222,7 @@ void motor_drive(int motor_left_speed,int motor_right_speed){
     digitalWrite(dir1PinL, HIGH);
 
     digitalWrite(dir2PinL, LOW);
-  }else if(motor_left_speed == 0){
+  }else{
     analogWrite(speedPinL, 0);
 
     digitalWrite(dir1PinL, LOW);
@@ -230,7 +230,7 @@ void motor_drive(int motor_left_speed,int motor_right_speed){
     digitalWrite(dir2PinL, LOW);
   }
 
-  int mapped_speed_R = map(abs(motor_right_speed),0,100,0,255);
+  int mapped_speed_R = map(constrain(abs(motor_right_speed), 30, 100),0,100,0,255);
   if(motor_right_speed > 0){
     analogWrite(speedPinR, mapped_speed_R);
 
@@ -244,7 +244,7 @@ void motor_drive(int motor_left_speed,int motor_right_speed){
     digitalWrite(dir1PinR, HIGH);
 
     digitalWrite(dir2PinR, LOW);
-  }else if(motor_right_speed == 0){
+  }else{
     analogWrite(speedPinR, 0);
 
     digitalWrite(dir1PinR, LOW);
@@ -352,8 +352,12 @@ void loop() {
     data.rover_lat = gps.location.lat();
     data.rover_long = gps.location.lng();
     data.sat_used = gps.satellites.value();
-    int R = RX + RY;
-    int L = RX - RY;
+    int R = constrain(RX + RY,-100,100);
+    int L = constrain(RX - RY,-100,100);
+    Serial.print(RX);
+    Serial.print("|");
+    Serial.print(RY);
+    Serial.print(" = ");
     Serial.print(L);
     Serial.print("|");
     Serial.println(R);
@@ -367,6 +371,36 @@ void loop() {
   }
   //auto
   while(mode == 1){
+    compass.read();
+    compass_value = compass.getAzimuth();
+    if(compass_value < 0){
+      compass_value = 360 + compass_value;
+    }
+
+    Serial.print("Compass value : ");
+    Serial.println(compass_value);
+
+    int rot_error = findRotError(compass_value,direction_to_target);
+
+    // if(abs(rot_error) < heading_threshold){
+    //   Serial.println("Heading Forward");
+    // }else{
+    //   Serial.print("Rotate error: ");
+    //   Serial.println(rot_error);
+    // }
+    if(abs(rot_error) < heading_threshold){
+      motor_drive(0,0);
+    }else if(rot_error < 0){
+      motor_drive(-80,-80);
+    }else if(rot_error > 0){
+      motor_drive(80,80);
+    }else{
+      motor_drive(80,0);
+    }
+  }
+
+  //sending data for testing module
+  while(mode == 2){
     unsigned long currentime = millis();
 
     gps.encode(ss.read());
