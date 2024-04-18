@@ -306,13 +306,15 @@ void calibrate_mag_sensor(){
   Serial.println("CALIBRATING. Start...");
   compass.calibrate();
 
-  for(int i = 0;i <= 10000; i++){
+  for(int i = 0;i <= 1000; i++){
     motor_drive(100,100);
-    delay(1);
+    delay(10);
   }
 
   compass.setCalibrationOffsets(compass.getCalibrationOffset(0),compass.getCalibrationOffset(1),compass.getCalibrationOffset(2));
   compass.setCalibrationScales(compass.getCalibrationScale(0),compass.getCalibrationScale(1),compass.getCalibrationScale(2));
+  Serial.println("CALIBRATING. DONE");
+
   delay(100);
 }
 
@@ -364,6 +366,30 @@ void setup() {
   pinMode(trigPin_ut_6, OUTPUT); 
   pinMode(echoPin_ut_7, INPUT); 
   pinMode(trigPin_ut_7, OUTPUT); 
+
+  calibrate_mag_sensor();
+  while(1){
+    compass.read();
+    compass_value = compass.getAzimuth();
+    if(compass_value < 0){
+      compass_value = 360 + compass_value;
+    }
+
+    Serial.print("Compass value : ");
+    Serial.println(compass_value);
+
+    int rot_error = findRotError(compass_value,direction_to_target);
+
+    if(abs(rot_error) < heading_threshold){
+        motor_drive(0,0);
+      }else if(rot_error < 0){
+        motor_drive(-80,-80);
+      }else if(rot_error > 0){
+        motor_drive(80,80);
+      }else{
+        motor_drive(80,80);
+      }
+  }
 
   
   // autopilot(13.414584954614241, 101.07614925415308);
