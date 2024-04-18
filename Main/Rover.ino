@@ -49,7 +49,7 @@ const int trigPin_ut_7 = 34;
 const int echoPin_ut_7 = 35;
 int distance_7;
 
-long duration;
+long unsigned duration;
 int distance;
 int trig,echo;
 
@@ -79,6 +79,7 @@ bool reach_destination = false;
 bool gps_value_reach = false;
 int heading_threshold = 8;
 int satellites_amount_to_start = 4;
+int detect_obstacle_distance = 30;
 /*
 mode variable use number to represent mode that it currently are rightnow based on this
 
@@ -105,14 +106,18 @@ typedef struct package Package;
 Package data;
 
 int ping(int trig,int echo){
-  digitalWrite(trig, LOW); 
-  delayMicroseconds(5); 
-  digitalWrite(trig, HIGH); 
-  delayMicroseconds(5); 
-  digitalWrite(trig, LOW); //ใช้งานขา trig
-  
-  duration = pulseIn(echo, HIGH); //อ่านค่าของ echo
-  distance = (duration/2) / 29.1; //คำนวณเป็น centimeters
+  distance = 0;
+  unsigned long ut_ping_lim = millis();
+  while(distance <= 1  || millis() - ut_ping_lim < 30){
+    digitalWrite(trig, LOW); 
+    delayMicroseconds(5); 
+    digitalWrite(trig, HIGH); 
+    delayMicroseconds(5); 
+    digitalWrite(trig, LOW); //ใช้งานขา trig
+    
+    duration = pulseIn(echo, HIGH, 30000); //อ่านค่าของ echo
+    distance = (duration/2) / 29.1; //คำนวณเป็น centimeters
+  }
   return distance;
 }
 
@@ -169,10 +174,17 @@ void autopilot(double destination_lat,double destination_long){
             int rot_error = findRotError(compass_value,direction_to_target);
 
             if(abs(rot_error) < heading_threshold){
-              Serial.println("Heading Forward");
+              motor_drive(100,-100);
+            }else if(rot_error < 0){
+              motor_drive(-100,-100);
+            }else if(rot_error > 0){
+              motor_drive(100,100);
             }else{
-              Serial.print("Rotate error: ");
-              Serial.println(rot_error);
+              motor_drive(80,80);
+            }
+
+            if(distance_from_target <= 1){
+              reach_destination = true;
             }
           }
         }else{
@@ -310,6 +322,7 @@ void setup() {
   Serial.println("Connected to IBUS");
 
   compass.init();
+  compass.read();
   Serial.println("Connected to compass");
   compass.setCalibrationOffsets(587.00, -530.00, 99.00);
   compass.setCalibrationScales(0.81, 1.13, 1.13);
@@ -341,7 +354,7 @@ void setup() {
 }
 
 void loop() {
-  //manual
+    //manual
   while(mode == 0){
     unsigned long currentime = millis();
 
@@ -371,32 +384,15 @@ void loop() {
   }
   //auto
   while(mode == 1){
-    compass.read();
-    compass_value = compass.getAzimuth();
-    if(compass_value < 0){
-      compass_value = 360 + compass_value;
-    }
-
-    Serial.print("Compass value : ");
-    Serial.println(compass_value);
-
-    int rot_error = findRotError(compass_value,direction_to_target);
-
-    // if(abs(rot_error) < heading_threshold){
-    //   Serial.println("Heading Forward");
-    // }else{
-    //   Serial.print("Rotate error: ");
-    //   Serial.println(rot_error);
-    // }
-    if(abs(rot_error) < heading_threshold){
+    data.distance_1 = ping(trigPin_ut_1,echoPin_ut_1);
+    Serial.println(data.distance_1);
+    if(data.distance_1 <= detect_obstacle_distance){
       motor_drive(0,0);
-    }else if(rot_error < 0){
-      motor_drive(-80,-80);
-    }else if(rot_error > 0){
-      motor_drive(80,80);
     }else{
-      motor_drive(80,0);
+      motor_drive(100,-100);
+
     }
+    delay(100);
   }
 
   //sending data for testing module
