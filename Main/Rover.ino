@@ -72,13 +72,13 @@ QMC5883LCompass compass;
 int compass_heading = 0;
 float distance_from_target = 0;
 int direction_to_target = 0;
-int mode = 1; 
+int mode = 0; 
 int RX,RY;
 int compass_value;
 bool reach_destination = false;
 bool gps_value_reach = false;
-int heading_threshold = 8;
-int satellites_amount_to_start = 4;
+int heading_threshold = 4;
+int satellites_amount_to_start = 9;
 int detect_obstacle_distance = 30;
 /*
 mode variable use number to represent mode that it currently are rightnow based on this
@@ -162,31 +162,31 @@ void autopilot(double destination_lat,double destination_long){
             Serial.print("Direction to destination is: ");
             Serial.println(direction_to_target);
 
-            compass.read();
-            compass_value = compass.getAzimuth();
-            if(compass_value < 0){
-              compass_value = 360 + compass_value;
-            }
-
-            Serial.print("Compass value : ");
-            Serial.println(compass_value);
-
-            int rot_error = findRotError(compass_value,direction_to_target);
-
-            if(abs(rot_error) < heading_threshold){
-              motor_drive(100,-100);
-            }else if(rot_error < 0){
-              motor_drive(-100,-100);
-            }else if(rot_error > 0){
-              motor_drive(100,100);
-            }else{
-              motor_drive(80,80);
-            }
-
             if(distance_from_target <= 1){
               reach_destination = true;
             }
           }
+          compass.read();
+          compass_value = compass.getAzimuth();
+          if(compass_value < 0){
+            compass_value = 360 + compass_value;
+          }
+
+          Serial.print("Compass value : ");
+          Serial.println(compass_value);
+
+          int rot_error = findRotError(compass_value,direction_to_target);
+
+          if(abs(rot_error) < heading_threshold){
+              motor_drive(80,-80);
+            }else if(rot_error < 0){
+              motor_drive(-80,-80);
+            }else if(rot_error > 0){
+              motor_drive(80,80);
+            }else{
+              motor_drive(80,80);
+            }
+
         }else{
           if (gps.satellites.value() < satellites_amount_to_start){
             Serial.println(gps.satellites.value());
@@ -300,6 +300,22 @@ void waypoint_execute(double Latitude_array[],double Longtitude_array[]){
   return true;
 }
 
+void calibrate_mag_sensor(){
+  Serial.println("CALIBRATING. Begin soon...");
+  delay(2000);
+  Serial.println("CALIBRATING. Start...");
+  compass.calibrate();
+
+  for(int i = 0;i <= 10000; i++){
+    motor_drive(100,100);
+    delay(1);
+  }
+
+  compass.setCalibrationOffsets(compass.getCalibrationOffset(0),compass.getCalibrationOffset(1),compass.getCalibrationOffset(2));
+  compass.setCalibrationScales(compass.getCalibrationScale(0),compass.getCalibrationScale(1),compass.getCalibrationScale(2));
+  delay(100);
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.println("boot up");
@@ -350,7 +366,7 @@ void setup() {
   pinMode(trigPin_ut_7, OUTPUT); 
 
   
-  // autopilot(13.276906029602102, 100.92121938129964);
+  // autopilot(13.414584954614241, 101.07614925415308);
 }
 
 void loop() {
@@ -384,15 +400,7 @@ void loop() {
   }
   //auto
   while(mode == 1){
-    data.distance_1 = ping(trigPin_ut_1,echoPin_ut_1);
-    Serial.println(data.distance_1);
-    if(data.distance_1 <= detect_obstacle_distance){
-      motor_drive(0,0);
-    }else{
-      motor_drive(100,-100);
-
-    }
-    delay(100);
+    
   }
 
   //sending data for testing module
