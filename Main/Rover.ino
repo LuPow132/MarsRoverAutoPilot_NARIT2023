@@ -1,9 +1,14 @@
 #include <SPI.h>  
 #include "RF24.h"
+#include <Wire.h>
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
 #include <IBusBM.h>
 #include <QMC5883LCompass.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define OLED_RESET 4
 
 //Left side Motor
 int dir1PinL = 5;
@@ -68,17 +73,18 @@ TinyGPSPlus gps;
 SoftwareSerial ss(RXPin, TXPin);
 IBusBM ibus;
 QMC5883LCompass compass;
+Adafruit_SSD1306 display(OLED_RESET);
 
 int compass_heading = 0;
 float distance_from_target = 0;
 int direction_to_target = 0;
-int mode = 0; 
+int mode = 1; 
 int RX,RY;
 int compass_value;
 bool reach_destination = false;
 bool gps_value_reach = false;
 int heading_threshold = 4;
-int satellites_amount_to_start = 9;
+int satellites_amount_to_start = 4;
 int detect_obstacle_distance = 30;
 /*
 mode variable use number to represent mode that it currently are rightnow based on this
@@ -162,7 +168,7 @@ void autopilot(double destination_lat,double destination_long){
             Serial.print("Direction to destination is: ");
             Serial.println(direction_to_target);
 
-            if(distance_from_target <= 1){
+            if(distance_from_target <= 3){
               reach_destination = true;
             }
           }
@@ -189,6 +195,10 @@ void autopilot(double destination_lat,double destination_long){
 
         }else{
           if (gps.satellites.value() < satellites_amount_to_start){
+            display.clearDisplay(); 
+            display.setCursor(0,0);
+            display.println(gps.satellites.value());
+            display.display();
             Serial.println(gps.satellites.value());
           }else{
             gps_value_reach = true;
@@ -220,7 +230,7 @@ void send_data(){
 
 void motor_drive(int motor_left_speed,int motor_right_speed){
 
-  int mapped_speed_L = map(constrain(abs(motor_left_speed), 30, 100),0,100,0,255);
+  int mapped_speed_L = map(abs(motor_left_speed),0,100,0,255);
   if(motor_left_speed > 0){
     analogWrite(speedPinL, mapped_speed_L);
 
@@ -242,7 +252,7 @@ void motor_drive(int motor_left_speed,int motor_right_speed){
     digitalWrite(dir2PinL, LOW);
   }
 
-  int mapped_speed_R = map(constrain(abs(motor_right_speed), 30, 100),0,100,0,255);
+  int mapped_speed_R = map(abs(motor_right_speed),0,100,0,255);
   if(motor_right_speed > 0){
     analogWrite(speedPinR, mapped_speed_R);
 
@@ -301,9 +311,18 @@ void waypoint_execute(double Latitude_array[],double Longtitude_array[]){
 }
 
 void calibrate_mag_sensor(){
+  display.clearDisplay(); 
+  display.setCursor(0,0);
+  display.println("Calibrate compass soon...");
+  display.display();
+
   Serial.println("CALIBRATING. Begin soon...");
-  delay(2000);
   Serial.println("CALIBRATING. Start...");
+  display.clearDisplay(); 
+  display.setCursor(0,0);
+  display.println("Calibrating compass");
+  display.display();
+
   compass.calibrate();
 
   for(int i = 0;i <= 1000; i++){
@@ -313,18 +332,63 @@ void calibrate_mag_sensor(){
 
   compass.setCalibrationOffsets(compass.getCalibrationOffset(0),compass.getCalibrationOffset(1),compass.getCalibrationOffset(2));
   compass.setCalibrationScales(compass.getCalibrationScale(0),compass.getCalibrationScale(1),compass.getCalibrationScale(2));
+  display.clearDisplay(); 
+  display.setCursor(0,0);
+  display.println("Calibrate compass Done");
+  display.display();
   Serial.println("CALIBRATING. DONE");
 
   delay(100);
+}
+
+void avoid_obstacle(){
+  data.distance_3 = ping(trigPin_ut_3,echoPin_ut_3);
+  data.distance_4 = ping(trigPin_ut_4,echoPin_ut_4);
+  if(data.distance_3 > data.distance_4 && data.distance_3 > detect_obstacle_distance){
+    Serial.println("Left is free");
+    motor_drive(-100,-100);
+    delay(800);
+    motor_drive(50,-50);
+    delay(300);
+
+  }else if(data.distance_4 > data.distance_3 && data.distance_4 > detect_obstacle_distance){
+    Serial.println("Right is free");
+    motor_drive(100,100);
+    delay(800);
+    motor_drive(50,-50);
+    delay(300);
+  }else if(data.distance_4 < detect_obstacle_distance && data.distance_3 < detect_obstacle_distance){
+    Serial.println("Hell nah, roll back!");
+    motor_drive(-100,-100);
+    delay(1600);
+    motor_drive(50,-50);
+    delay(300);
+  }else{
+    Serial.print("Both way free");
+  }
 }
 
 void setup() {
   Serial.begin(115200);
   Serial.println("boot up");
   delay(300);
+
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
+  Serial.println("Connected to Display");
+  display.setTextColor(WHITE);
+  display.setTextSize(2);
+
+  display.clearDisplay(); 
+  display.setCursor(0,0);
+  display.println("Connecting GPS...");
+  display.display();
   ss.begin(GPSBaud);
   Serial.println("Connected to GPS");
   
+  display.clearDisplay(); 
+  display.setCursor(0,0);
+  display.println("Connecting NRF...");
+  display.display();
   myRadio.begin();  
   myRadio.setChannel(115); 
   myRadio.setPALevel(RF24_PA_MAX);
@@ -336,9 +400,17 @@ void setup() {
   data.message = "Radio Connected!";
   myRadio.write(&data, sizeof(data)); 
 
+  display.clearDisplay(); 
+  display.setCursor(0,0);
+  display.println("Connecting IBUS...");
+  display.display();
   ibus.begin(Serial1);
   Serial.println("Connected to IBUS");
 
+  display.clearDisplay(); 
+  display.setCursor(0,0);
+  display.println("Connecting Compass...");
+  display.display();
   compass.init();
   compass.read();
   Serial.println("Connected to compass");
@@ -368,31 +440,7 @@ void setup() {
   pinMode(trigPin_ut_7, OUTPUT); 
 
   calibrate_mag_sensor();
-  while(1){
-    compass.read();
-    compass_value = compass.getAzimuth();
-    if(compass_value < 0){
-      compass_value = 360 + compass_value;
-    }
-
-    Serial.print("Compass value : ");
-    Serial.println(compass_value);
-
-    int rot_error = findRotError(compass_value,direction_to_target);
-
-    if(abs(rot_error) < heading_threshold){
-        motor_drive(0,0);
-      }else if(rot_error < 0){
-        motor_drive(-80,-80);
-      }else if(rot_error > 0){
-        motor_drive(80,80);
-      }else{
-        motor_drive(80,80);
-      }
-  }
-
-  
-  // autopilot(13.414584954614241, 101.07614925415308);
+  autopilot(13.414633781280374, 101.07631301056892);
 }
 
 void loop() {
@@ -426,7 +474,28 @@ void loop() {
   }
   //auto
   while(mode == 1){
+    data.distance_1 = ping(trigPin_ut_1,echoPin_ut_1);
     
+    if(data.distance_1 <= detect_obstacle_distance){
+      unsigned long start_time = millis();
+      Serial.println("Object");
+      motor_drive(2,-2);
+      while(data.distance_1 <= detect_obstacle_distance){
+        data.distance_1 = ping(trigPin_ut_1,echoPin_ut_1);
+        unsigned long currentime = millis();
+        if(millis() - start_time > 500){
+          motor_drive(0,0);
+          avoid_obstacle();
+          start_time = currentime;
+          break;
+        }
+      }
+      
+    }else{
+      Serial.println("Empty");
+      motor_drive(50,-50);
+    }
+    delay(100);
   }
 
   //sending data for testing module
