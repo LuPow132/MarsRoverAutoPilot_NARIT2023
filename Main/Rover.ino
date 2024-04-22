@@ -381,7 +381,7 @@ void autopilot(double destination_lat,double destination_long){
 
           if (gps.location.isUpdated()){
             distance_from_target = TinyGPSPlus::distanceBetween(gps.location.lat(), gps.location.lng(), destination_lat, destination_long);
-            direction_to_target = TinyGPSPlus::courseTo(gps.location.lat(), gps.location.lng(), destination_lat, destination_long);
+            direction_to_target = TinyGPSPlus::courseTo(destination_lat, destination_long, gps.location.lat(), gps.location.lng()) * -1;
 
             //Destination Location
             Serial.print(destination_lat,6);
@@ -412,8 +412,7 @@ void autopilot(double destination_lat,double destination_long){
 
             Serial.print("Compass value : ");
             Serial.println(compass_value);
-
-            int rot_error = findRotError(compass_value,direction_to_target);
+            int rot_error = findRotError(compass_value,direction_to_target) - 55;
 
             if(millis() - GPS_timing_lim > 2000){
               motor_drive(0,0);
@@ -509,8 +508,8 @@ void setup() {
   // compass.setCalibrationOffsets(587.00, -530.00, 99.00);
   // compass.setCalibrationScales(0.81, 1.13, 1.13);
 
-  compass.setCalibrationOffsets(408.00, 141.00, 203.00);
-compass.setCalibrationScales(0.92, 0.96, 1.14);
+  compass.setCalibrationOffsets(833.00, -114.00, -166.00);
+compass.setCalibrationScales(1.06, 0.88, 1.08);
   pinMode(dir1PinL,OUTPUT);
   pinMode(dir2PinL,OUTPUT);
   pinMode(speedPinL,OUTPUT);
@@ -534,7 +533,7 @@ compass.setCalibrationScales(0.92, 0.96, 1.14);
   pinMode(trigPin_ut_7, OUTPUT); 
 
   //calibrate_mag_sensor();
-  autopilot(13.41461086826591, 101.07638941267531);
+  autopilot(13.414657, 101.076421);
 }
 
 void loop() {
