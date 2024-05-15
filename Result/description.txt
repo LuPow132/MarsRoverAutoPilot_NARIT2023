@@ -1,0 +1,1 @@
+This result is record using my own prototype rover and some factor may change base on your enviroment or rover.
